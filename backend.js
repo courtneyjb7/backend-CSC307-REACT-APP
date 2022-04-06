@@ -39,35 +39,41 @@ const users = {
           id: 'zap555', 
           name: 'Dennis',
           job: 'Bartender',
-       }
+       },
+       {
+         id: 'cat456', 
+         name: 'Kate',
+         job: 'Bouncer',
+      }
     ]
  }
 
- app.get('/users', (req, res) => {
-    const name = req.query.name;
-    const job = req.query.job;
-    if (name != undefined){
-      if (job != undefined){
-         let resultJob = findUserByJob(job);
-         resultJob = {users_list: resultJob};
-         res.send(resultJob);
-      }
-      else{
-         let resultName = findUserByName(name);
-         resultName = {users_list: resultName};
-         res.send(resultName);
-      }
-    }
-    else{
-       res.send(users);
-    }
+app.get('/users', (req, res) => {
+   const name = req.query.name;
+   const job = req.query.job;
+   if (name != undefined){
+      let resultName = findUserByName(name);
+      resultName = {users_list: resultName};
+     if (job != undefined){
+        let resultJob = findUserByJob(job, resultName);
+        resultJob = {users_list: resultJob};
+        res.send(resultJob);
+     }
+     else{
+        
+        res.send(resultName);
+     }
+   }
+   else{
+      res.send(users);
+   }
 });
 
 const findUserByName = (name) => { 
     return users['users_list'].filter( (user) => user['name'] === name); 
 }
-const findUserByJob = (job) => { 
-   return users['users_list'].filter( (user) => user['job'] === job); 
+const findUserByJob = (job, names) => { 
+   return names['users_list'].filter( (user) => user['job'] === job); 
 }
 
 app.get('/users/:id', (req, res) => {
@@ -87,6 +93,20 @@ function findUserById(id) {
    //return users['users_list'].filter( (user) => user['id'] === id);
 }
 
+app.delete('/users/:id', (req, res) => {
+   const id = req.params.id;
+   deleteById(id);
+   res.status(200).end();
+});
+
+function deleteById(id) {
+   for (var i=0; i<users['users_list'].length;i++) {
+      if (users['users_list'][i]['id'] == id) {
+        users['users_list'].splice(i, 1);
+      }
+    }
+}
+
 app.post('/users', (req, res) => {
    const userToAdd = req.body;
    addUser(userToAdd);
@@ -96,3 +116,7 @@ app.post('/users', (req, res) => {
 function addUser(user){
    users['users_list'].push(user);
 }
+
+
+  
+
