@@ -96,8 +96,15 @@ function findUserById(id) {
 
 app.delete('/users/:id', (req, res) => {
    const id = req.params.id;
-   deleteById(id);
-   res.status(200).end();
+   let result = deleteById(id);
+   if (result === undefined || result.length == 0){
+       res.status(404).send('Resource not found.');
+   }
+   else {
+       result = {users_list: result};
+       
+       res.status(204).end();
+   }
 });
 
 function deleteById(id) {
@@ -105,17 +112,27 @@ function deleteById(id) {
       if (users['users_list'][i]['id'] == id) {
         users['users_list'].splice(i, 1);
       }
-    }
+   }
+   
+   return users['users_list'];
 }
 
 app.post('/users', (req, res) => {
    const userToAdd = req.body;
-   addUser(userToAdd);
-   res.status(200).end();
+   userToAdd['id'] = makeID();
+   addUser(userToAdd);   
+   res.status(201).send(userToAdd);
 });
 
 function addUser(user){
    users['users_list'].push(user);
+}
+
+function makeID(){
+   const endNum = Math.floor(Math.random() * (999 - 100) + 100);
+   const alphabet = "abcdefghijklmnopqrstuvwxyz";
+   const randomChar = alphabet[Math.floor(Math.random() * alphabet.length)]+ alphabet[Math.floor(Math.random() * alphabet.length)]+alphabet[Math.floor(Math.random() * alphabet.length)];
+   return randomChar+endNum;
 }
 
 
